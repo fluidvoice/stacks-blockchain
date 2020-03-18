@@ -1,66 +1,35 @@
-# Stacks 2.0
+# Stacks 2.0 on Raspberry Pi - NOTICE
 
-Reference implementation of https://blockstack.org/whitepaper.pdf is in Rust.
+This respository is a fork of the stacks blockchain with config and instructions for cross-compiling to Raspberry Pi 2, 3, 4 (ie ARM v7). Raspberry Pi 1 and Raspberry Pi Zero are not supported. Note also that by default the build is a developer-mode build.
 
-[![CircleCI](https://circleci.com/gh/blockstack/blockstack-core/tree/master.svg?style=svg)](https://circleci.com/gh/blockstack/blockstack-core/tree/master)
+For the canonical version of Stacks V2, you should really go to https://github.com/blockstack/stacks-blockchain
 
-## Repository
-
-| Blockstack Topic/Tech | Where to learn more more |
-|---------------------------------|------------------------------------------------------------------------------|
-| Stacks 2.0 | [master branch](https://github.com/blockstack/blockstack-core/tree/master) |
-| Stacks 1.0 | [legacy branch](https://github.com/blockstack/blockstack-core/tree/stacks-1.0) |
-| Use the package | [our core docs](https://docs.blockstack.org/core/naming/introduction.html) |
-| Develop a Blockstack App | [our developer docs](https://docs.blockstack.org/browser/hello-blockstack.html) |
-| Use a Blockstack App | [our browser docs](https://docs.blockstack.org/browser/browser-introduction.html) |
-| Blockstack the company | [our website](https://blockstack.org) |
-
-## Design Thesis
-
-Stacks 2.0 is an open-membership replicated state machine produced by the coordination of a non-enumerable set of peers.
-
-To unpack this definition:
-
-- A replicated state machine is two or more copies (“replicas”) of a given set of rules (a “machine”) that, in processing a common input (such as the same sequence of transactions), will arrive at the same configuration (“state”).  Bitcoin is a replicated state machine — its state is the set of UTXOs, which each peer has a full copy of, and given a block, all peers will independently calculate the same new UTXO set from the existing one.
-- Open-membership means that any host on the Internet can join the blockchain and independently calculate the same full replica as all other peers.
-- Non-enumerable means that the set of peers that are producing the blocks don’t know about one another — they don’t know their identities, or even how many exist and are online.  They are indistinguishable.
-
-## Roadmap
-
-- [x] [SIP 001: Burn Election](https://github.com/blockstack/stacks-blockchain/blob/master/sip/sip-001-burn-election.md)
-- [x] [SIP 002: Clarity, a language for predictable smart contracts](https://github.com/blockstack/stacks-blockchain/blob/master/sip/sip-002-smart-contract-language.md)
-- [x] [SIP 004: Cryptographic Committment to Materialized Views](https://github.com/blockstack/stacks-blockchain/blob/master/sip/sip-004-materialized-view.md)
-- [x] [SIP 005: Blocks, Transactions, and Accounts](https://github.com/blockstack/stacks-blockchain/blob/master/sip/sip-005-blocks-and-transactions.md
-)
-- [ ] [SIP 003: Peer Network](https://github.com/blockstack/stacks-blockchain/blob/master/sip/sip-003-peer-network.md) (Q1 2020)
-- [ ] SIP 006: Clarity Execution Cost Assessment (Q1 2020)
-
-Stacks improvement proposals (SIPs) are aimed at describing the implementation of the Stacks blockchain, as well as proposing improvements. They should contain concise technical specifications of features or standards and the rationale behind it. SIPs are intended to be the primary medium for proposing new features, for collecting community input on a system-wide issue, and for documenting design decisions.
-
-See [SIP 000](https://github.com/blockstack/stacks-blockchain/blob/master/sip/sip-000-stacks-improvement-proposal-process.md) for more details.
-
-### Testnet versions
-
-- [x] **Local Testnet** is a developer local setup, mono-node, assembling SIP 001, SIP 002, SIP 004 and SIP 005. With this version, developers can not only run Stacks 2.0 on their development machines, but also write, execute, and test smart contracts. See the instructions below for more details.
-
-- [ ] **Open Testnet** is the upcoming version of our public testnet, that we're anticipating will ship in Q1 2020. This testnet will ship with SIP 003, and will be an open-membership public network, where participants will be able to validate and participate in mining testnet blocks.
-
-- [ ] **Mainet** is the fully functional version, that we're intending to ship in Q2 2020.
+Status: Currently only a LOCAL testnet is runnable.
 
 ## Getting started
 
-### Download and build stacks-blockchain
+### Configure local environment
 
 The first step is to ensure that you have Rust and the support software installed.
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+cargo install cross
 ```
+
+```bash
+rustup target add arm-unknown-linux-gnueabihf
+sudo apt install gcc-arm-linux-gnueabihf
+echo '[target.arm-unknown-linux-gnueabihf]' >> ~/.cargo/config
+echo 'linker = "arm-linux-gnueabihf-gcc"' >> ~/.cargo/config
+```
+
+### Download and build stacks-blockchain
 
 From there, you can clone this repository:
 
 ```bash
-git clone https://github.com/blockstack/stacks-blockchain.git
+git clone https://github.com/dantrevino/stacks-blockchain.git
 
 cd stacks-blockchain
 ```
@@ -68,8 +37,11 @@ cd stacks-blockchain
 Then build the project:
 
 ```bash
-cargo build
+cross build --target arm-unknown-linux-gnueabihf
+cargo build --target=arm-unknown-linux-gnueabihf
 ```
+
+You now have binaries that will run on Raspberry pi in your "target" directory. Copy
 
 And run the tests:
 
@@ -213,18 +185,20 @@ Congratulations, you can now [write your own smart contracts with Clarity](https
 
 Beyond this Github project,
 Blockstack maintains a public [forum](https://forum.blockstack.org) and an
-opened [Discord](https://discordapp.com/invite/9r94Xkj) channel.  In addition, the project
+opened [Discord](https://discordapp.com/invite/9r94Xkj) channel. In addition, the project
 maintains a [mailing list](https://blockstack.org/signup) which sends out
 community announcements.
 
 The greater Blockstack community regularly hosts in-person
-[meetups](https://www.meetup.com/topics/blockstack/).  The project's
+[meetups](https://www.meetup.com/topics/blockstack/). The project's
 [YouTube channel](https://www.youtube.com/channel/UC3J2iHnyt2JtOvtGVf_jpHQ) includes
 videos from some of these meetups, as well as video tutorials to help new
 users get started and help developers wrap their heads around the system's
 design.
 
 ## Further Reading
+
+Reference for Rust on RPi: https://stackoverflow.com/a/41412427
 
 You can learn more by visiting [the Blockstack Website](https://blockstack.org) and checking out the in-depth articles and documentation:
 
